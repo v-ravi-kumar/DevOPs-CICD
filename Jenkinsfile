@@ -5,21 +5,31 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out source code'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Building application'
+                echo 'Source code checked out successfully'
+                sh 'ls -la'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing application'
+                echo 'Checking application files'
+
+                sh '''
+                    test -f index.html
+                    test -f Dockerfile
+                '''
             }
         }
 
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
 }
