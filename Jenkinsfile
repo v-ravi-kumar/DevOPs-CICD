@@ -1,35 +1,50 @@
 pipeline {
-    agent any
+agent any
 
-    stages {
+environment {
+    IMAGE_NAME = "jenkins-cicd-demo"
+}
 
-        stage('Checkout') {
-            steps {
-                echo 'Source code checked out successfully'
-                sh 'ls -la'
-            }
-        }
+stages {
 
-        stage('Test') {
-            steps {
-                echo 'Checking application files'
-
-                sh '''
-                    test -f index.html
-                    test -f Dockerfile
-                '''
-            }
-        }
-
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-
-        failure {
-            echo 'Pipeline failed!'
+    stage('Checkout') {
+        steps {
+            echo 'Checking out source code'
+            sh 'ls -la'
         }
     }
+
+    stage('Test') {
+        steps {
+            echo 'Checking application files'
+
+            sh '''
+                test -f index.html
+                test -f Dockerfile
+            '''
+        }
+    }
+
+    stage('Docker Build') {
+        steps {
+            echo 'Building Docker image'
+
+            sh '''
+                docker build -t $IMAGE_NAME:$BUILD_NUMBER .
+            '''
+        }
+    }
+
+}
+
+post {
+    success {
+        echo 'Pipeline completed successfully!'
+    }
+
+    failure {
+        echo 'Pipeline failed!'
+    }
+}
+
 }
