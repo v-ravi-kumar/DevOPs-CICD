@@ -2,7 +2,7 @@ pipeline {
 agent any
 
 environment {
-    IMAGE_NAME = "vediyappan303/jenkins-cicd-demo"
+    IMAGE_NAME = "vediyappan303/ravirepository"
 }
 
 stages {
