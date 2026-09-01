@@ -2,7 +2,7 @@ pipeline {
 agent any
 
 environment {
-    IMAGE_NAME = "jenkins-cicd-demo"
+    IMAGE_NAME = "YOUR_DOCKERHUB_USERNAME/jenkins-cicd-demo"
 }
 
 stages {
@@ -16,8 +16,6 @@ stages {
 
     stage('Test') {
         steps {
-            echo 'Checking application files'
-
             sh '''
                 test -f index.html
                 test -f Dockerfile
@@ -27,19 +25,37 @@ stages {
 
     stage('Docker Build') {
         steps {
-            echo 'Building Docker image'
-
             sh '''
                 docker build -t $IMAGE_NAME:$BUILD_NUMBER .
             '''
         }
     }
 
+    stage('Docker Push') {
+        steps {
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )
+            ]) {
+                sh '''
+                    echo "$DOCKER_PASSWORD" | docker login \
+                    -u "$DOCKER_USERNAME" --password-stdin
+
+                    docker push $IMAGE_NAME:$BUILD_NUMBER
+
+                    docker logout
+                '''
+            }
+        }
+    }
 }
 
 post {
     success {
-        echo 'Pipeline completed successfully!'
+        echo 'Image successfully pushed to Docker Hub!'
     }
 
     failure {
